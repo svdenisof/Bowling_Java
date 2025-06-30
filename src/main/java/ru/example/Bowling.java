@@ -34,6 +34,10 @@ public class Bowling {
                 }
                 else
                 {
+                    if(doubleStrike)
+                    {
+                        result += doubleStrikeBonus(score);
+                    }
                     // TBD
                     System.out.println("unSet Double");
                     doubleStrike = false;
@@ -79,6 +83,14 @@ public class Bowling {
     private Integer doubleStrikeBonus(int[] pin)
     {
         return bonus(20, pin[0]);
+    }
+
+    private Integer tripleStrikeBonus(int[] pin)
+    {
+        /**
+         * TODO Найти нормальные правила, по которым до этого писал
+         * **/
+        return bonus(30, pin[0]);
     }
 
     private Integer bonus(int bonus, int gameBonus)
