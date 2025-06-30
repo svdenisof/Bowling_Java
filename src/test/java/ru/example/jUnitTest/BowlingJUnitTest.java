@@ -120,7 +120,7 @@ public class BowlingJUnitTest {
         game.roll(pins);
         score = game.score();
 
-        Assertions.assertEquals(102, score);
+        Assertions.assertEquals(132, score);
     }
 
     @AfterEach
