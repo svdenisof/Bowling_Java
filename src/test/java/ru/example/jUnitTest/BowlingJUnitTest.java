@@ -58,7 +58,7 @@ public class BowlingJUnitTest {
         game.roll(pins);
         score = game.score();
 
-        Assertions.assertEquals(91, score);
+        Assertions.assertEquals(101, score);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class BowlingJUnitTest {
 
         score = game.score();
 
-        Assertions.assertEquals(108, score);
+        Assertions.assertEquals(118, score);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class BowlingJUnitTest {
 
         score = game.score();
 
-        Assertions.assertEquals(106, score);
+        Assertions.assertEquals(116, score);
     }
 
     @Test
@@ -120,7 +120,47 @@ public class BowlingJUnitTest {
         game.roll(pins);
         score = game.score();
 
-        Assertions.assertEquals(132, score);
+        Assertions.assertEquals(122, score);
+    }
+
+    @Test
+    public void startTheGameAndTripleStrike()
+    {
+        pins.put(1, new int[]{5, 2});
+        pins.put(2, new int[]{7, 3});
+        pins.put(3, new int[]{0, 2});
+        pins.put(4, new int[]{10, 0});
+        pins.put(5, new int[]{10, 0});
+        pins.put(6, new int[]{10, 0});
+        pins.put(7, new int[]{3, 3});
+        pins.put(8, new int[]{5, 0});
+        pins.put(9, new int[]{10, 0});
+        pins.put(10, new int[]{4, 5});
+
+        game.roll(pins);
+        score = game.score();
+
+        Assertions.assertEquals(128, score);
+    }
+
+    @Test
+    public void startTheGameAndMaximumStrike()
+    {
+        pins.put(1, new int[]{10, 0});
+        pins.put(2, new int[]{10, 0});
+        pins.put(3, new int[]{10, 0});
+        pins.put(4, new int[]{10, 0});
+        pins.put(5, new int[]{10, 0});
+        pins.put(6, new int[]{10, 0});
+        pins.put(7, new int[]{10, 0});
+        pins.put(8, new int[]{10, 0});
+        pins.put(9, new int[]{10, 0});
+        pins.put(10, new int[]{10, 10, 10});
+
+        game.roll(pins);
+        score = game.score();
+
+        Assertions.assertEquals(350, score);
     }
 
     @AfterEach
