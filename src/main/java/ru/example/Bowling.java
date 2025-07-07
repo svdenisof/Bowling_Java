@@ -1,8 +1,9 @@
 package ru.example;
 
+import ru.example.bonuses.Bonus;
+import ru.example.bonuses.BonusImpl;
 import ru.example.exceptions.BreakRuleException;
 
-import javax.sound.midi.SysexMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,6 @@ public class Bowling {
 
     private final List<Integer> rolls = new ArrayList<>();
     private int score;
-    private int strikeRolls = 0;
 
     public void roll(HashMap<Integer, int[]> pins) {
         var doubleStrike = false;
@@ -22,21 +22,17 @@ public class Bowling {
             int[] score = pins.get(i);
 
             var result = score[0] + score[1];
-            if(result == 10 && pins.containsKey(i+1) && score[0] != 0 && score[1] != 0)
+            if(isSpare(result, pins, i, score))
             {
                 result = spareBonus(pins.get(i + 1));
             }
-            else if(result == 10 && pins.containsKey(i+1) && score[0] == 10)
+            else if(isStrike(result, pins, i, score))
             {
-
                 int[] next = pins.get(i + 1);
-                int[] nextNext = null;
+                int[] nextNext;
                 var strikeResult = 0;
 
-                if(pins.containsKey(i+2))
-                {
-                    nextNext = pins.get(i + 2);
-                }
+                nextNext = getAfterOne(pins, i);
 
                 if((next[0] != 10 && !doubleStrike && !tripleStrike))
                 {
@@ -66,7 +62,7 @@ public class Bowling {
                 result += strikeResult;
 
             }
-            else if(i == 10 && result == 10)
+            else if(isNeedExtraRoll(i, result))
             {
                 if(score.length < 3)
                     throw new BreakRuleException("Вы должны бросить еще один шар!");
@@ -93,33 +89,74 @@ public class Bowling {
         return score;
     }
 
+    private int[] getAfterOne(HashMap<Integer, int[]> pins, int index)
+    {
+        if(pins.containsKey(index + 2))
+        {
+            return pins.get(index + 2);
+        }
+
+        return null;
+    }
+
+    private boolean isSpare(Integer result, HashMap<Integer, int[]> pins, int index, int[] scores)
+    {
+        return isNotLastRoll(result, pins, index) && scores[0] != 0 && scores[1] != 0;
+    }
+
+    private boolean isStrike(Integer result, HashMap<Integer, int[]> pins, int index, int[] scores)
+    {
+        return isNotLastRoll(result, pins, index) && scores[0] == 10;
+    }
+
+    private boolean isNotLastRoll(Integer result, HashMap<Integer, int[]> pins, int index)
+    {
+        return result == 10 && pins.containsKey(index + 1);
+    }
+
+    private boolean isNeedExtraRoll(int index, int result)
+    {
+        return result == 10 && index == 10;
+    }
+
     private Integer spareBonus(int[] pin)
     {
         System.out.println("Spare bonus");
-        return bonus(10, pin[0]);
+        Bonus bonus = new BonusImpl();
+        bonus.setBonus(10);
+        bonus.setGameBonus(pin[0]);
+
+        return bonus.calculate();
     }
 
     private Integer strikeBonus(int[] pin)
     {
         System.out.println("Strike bonus for one strike ");
-        return bonus(10, pin[0] + pin[1]);
+        Bonus bonus = new BonusImpl();
+        bonus.setBonus(10);
+        bonus.setGameBonus(pin[0] + pin[1]);
+
+        return bonus.calculate();
     }
 
     private Integer doubleStrikeBonus(int[] pin)
     {
         System.out.println("Strike bonus for two strike ");
-        return bonus(20, pin[0]);
+        Bonus bonus = new BonusImpl();
+        bonus.setBonus(20);
+        bonus.setGameBonus(pin[0]);
+
+        return bonus.calculate();
     }
 
     private Integer tripleStrikeBonus()
     {
         System.out.println("Strike bonus for three strike ");
-        return bonus(30, 0);
-    }
+        Bonus bonus = new BonusImpl();
+        bonus.setBonus(30);
+        bonus.setGameBonus(0);
 
-    private Integer bonus(int bonus, int gameBonus)
-    {
-        return bonus + gameBonus;
+        return bonus.calculate();
     }
 
     private void game()
