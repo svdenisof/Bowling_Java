@@ -11,36 +11,40 @@ import java.util.List;
 public class Bowling {
 
     private final List<Integer> rolls = new ArrayList<>();
-    private int score;
+    private int[] score;
+    private int result;
+    private HashMap<Integer, int[]> thePins;
 
-    public void roll(HashMap<Integer, int[]> pins) {
-        var doubleStrike = false;
-        var tripleStrike = false;
+    public void roll(HashMap<Integer, int[]> pins)
+    {
+        boolean doubleStrike = false;
+        boolean tripleStrike = false;
+        thePins = pins;
 
         for(var i = 1; i <= pins.size(); i++)
         {
-            int[] score = pins.get(i);
+            score = thePins.get(i);
 
-            var result = score[0] + score[1];
-            if(isSpare(result, pins, i, score))
+            result = score[0] + score[1];
+            if(isNotLastSpare(i))
             {
-                result = spareBonus(pins.get(i + 1));
+                result = spareBonus(thePins.get(i + 1));
             }
-            else if(isStrike(result, pins, i, score))
+            else if(isNotLastStrike(i))
             {
-                int[] next = pins.get(i + 1);
+                int[] next = thePins.get(i + 1);
                 int[] nextNext;
                 var strikeResult = 0;
 
-                nextNext = getAfterOne(pins, i);
+                nextNext = getAfterOne(i);
 
                 if((next[0] != 10 && !doubleStrike && !tripleStrike))
                 {
-                    strikeResult = strikeBonus(pins.get(i + 1));
+                    strikeResult = strikeBonus(thePins.get(i + 1));
                 }
                 else if(next[0] == 10 && (nextNext != null && nextNext[0] != 10) && !tripleStrike)
                 {
-                    strikeResult = doubleStrikeBonus(pins.get(i + 2));
+                    strikeResult = doubleStrikeBonus(thePins.get(i + 2));
                     doubleStrike = true;
                 }
                 else if(next[0] == 10 && (nextNext != null && nextNext[0] == 10))
@@ -50,19 +54,19 @@ public class Bowling {
                 }
                 else if(((doubleStrike && !tripleStrike) || tripleStrike))
                 {
-                    int[] prev = pins.get(i - 1);
+                    int[] prev = thePins.get(i - 1);
                     if(prev[0] != 10)
                     {
                         doubleStrike = false;
                         tripleStrike = false;
-                        strikeResult = strikeBonus(pins.get(i + 1));
+                        strikeResult = strikeBonus(thePins.get(i + 1));
                     }
                 }
 
                 result += strikeResult;
 
             }
-            else if(isNeedExtraRoll(i, result))
+            else if(isNeedExtraRoll(i))
             {
                 if(score.length < 3)
                     throw new BreakRuleException("Вы должны бросить еще один шар!");
@@ -84,37 +88,35 @@ public class Bowling {
 
     public Integer score()
     {
-        game();
-
-        return score;
+        return game();
     }
 
-    private int[] getAfterOne(HashMap<Integer, int[]> pins, int index)
+    private int[] getAfterOne(int index)
     {
-        if(pins.containsKey(index + 2))
+        if(thePins.containsKey(index + 2))
         {
-            return pins.get(index + 2);
+            return thePins.get(index + 2);
         }
 
         return null;
     }
 
-    private boolean isSpare(Integer result, HashMap<Integer, int[]> pins, int index, int[] scores)
+    private boolean isNotLastSpare(int index)
     {
-        return isNotLastRoll(result, pins, index) && scores[0] != 0 && scores[1] != 0;
+        return isNotLastRoll(index) && score[0] != 0 && score[1] != 0;
     }
 
-    private boolean isStrike(Integer result, HashMap<Integer, int[]> pins, int index, int[] scores)
+    private boolean isNotLastStrike(int index)
     {
-        return isNotLastRoll(result, pins, index) && scores[0] == 10;
+        return isNotLastRoll(index) && score[0] == 10;
     }
 
-    private boolean isNotLastRoll(Integer result, HashMap<Integer, int[]> pins, int index)
+    private boolean isNotLastRoll(int index)
     {
-        return result == 10 && pins.containsKey(index + 1);
+        return result == 10 && thePins.containsKey(index + 1);
     }
 
-    private boolean isNeedExtraRoll(int index, int result)
+    private boolean isNeedExtraRoll(int index)
     {
         return result == 10 && index == 10;
     }
@@ -159,12 +161,15 @@ public class Bowling {
         return bonus.calculate();
     }
 
-    private void game()
+    private Integer game()
     {
         var frames = 10;
+        Integer score = 0;
         for(var i = 0; i < frames; i++)
         {
             score +=  rolls.get(i);
         }
+
+        return score;
     }
 }
