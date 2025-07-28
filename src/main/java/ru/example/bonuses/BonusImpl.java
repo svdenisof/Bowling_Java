@@ -1,21 +1,15 @@
 package ru.example.bonuses;
 
-public class BonusImpl implements Bonus
+class BonusImpl implements Bonus
 {
-    private Integer theBonus;
-    private Integer theGameBonus;
+    private final Integer theBonus;
+    private final Integer theGameBonus;
 
-    @Override
-    public void setBonus(Integer bonus) {
+    BonusImpl (final Integer bonus, final Integer gameBonus) {
         theBonus = bonus;
-    }
-
-    @Override
-    public void setGameBonus(Integer gameBonus) {
         theGameBonus = gameBonus;
     }
 
-    @Override
     public Integer calculate() {
         return theBonus + theGameBonus;
     }

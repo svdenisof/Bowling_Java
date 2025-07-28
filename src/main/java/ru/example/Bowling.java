@@ -1,7 +1,6 @@
 package ru.example;
 
-import ru.example.bonuses.Bonus;
-import ru.example.bonuses.BonusImpl;
+import ru.example.bonuses.CalculateBonus;
 import ru.example.exceptions.BreakRuleException;
 
 import java.util.ArrayList;
@@ -28,7 +27,8 @@ public class Bowling {
             result = score[0] + score[1];
             if(isNotLastSpare(i))
             {
-                result = spareBonus(thePins.get(i + 1));
+                result = CalculateBonus.calculateSpareBonus(thePins.get(i + 1));
+
             }
             else if(isNotLastStrike(i))
             {
@@ -40,16 +40,16 @@ public class Bowling {
 
                 if((next[0] != 10 && !doubleStrike && !tripleStrike))
                 {
-                    strikeResult = strikeBonus(thePins.get(i + 1));
+                    strikeResult = CalculateBonus.calculateStrikeBonus(thePins.get(i + 1));
                 }
                 else if(next[0] == 10 && (nextNext != null && nextNext[0] != 10) && !tripleStrike)
                 {
-                    strikeResult = doubleStrikeBonus(thePins.get(i + 2));
+                    strikeResult = CalculateBonus.calculateDoubleStrikeBonus(thePins.get(i + 2));
                     doubleStrike = true;
                 }
                 else if(next[0] == 10 && (nextNext != null && nextNext[0] == 10))
                 {
-                    strikeResult = tripleStrikeBonus();
+                    strikeResult = CalculateBonus.calculateTripleStrikeBonus();
                     tripleStrike = true;
                 }
                 else if(((doubleStrike && !tripleStrike) || tripleStrike))
@@ -59,7 +59,7 @@ public class Bowling {
                     {
                         doubleStrike = false;
                         tripleStrike = false;
-                        strikeResult = strikeBonus(thePins.get(i + 1));
+                        strikeResult = CalculateBonus.calculateStrikeBonus(thePins.get(i + 1));
                     }
                 }
 
@@ -74,11 +74,11 @@ public class Bowling {
                 int[] extraPin = new int[]{score[1], score[0]};
                 if(score[0] == 10)
                 {
-                    result = strikeBonus(extraPin);
+                    result = CalculateBonus.calculateStrikeBonus(extraPin);
                 }
                 else
                 {
-                    result = spareBonus(extraPin);
+                    result = CalculateBonus.calculateSpareBonus(extraPin);
                 }
             }
 
@@ -119,46 +119,6 @@ public class Bowling {
     private boolean isNeedExtraRoll(int index)
     {
         return result == 10 && index == 10;
-    }
-
-    private Integer spareBonus(int[] pin)
-    {
-        System.out.println("Spare bonus");
-        Bonus bonus = new BonusImpl();
-        bonus.setBonus(10);
-        bonus.setGameBonus(pin[0]);
-
-        return bonus.calculate();
-    }
-
-    private Integer strikeBonus(int[] pin)
-    {
-        System.out.println("Strike bonus for one strike ");
-        Bonus bonus = new BonusImpl();
-        bonus.setBonus(10);
-        bonus.setGameBonus(pin[0] + pin[1]);
-
-        return bonus.calculate();
-    }
-
-    private Integer doubleStrikeBonus(int[] pin)
-    {
-        System.out.println("Strike bonus for two strike ");
-        Bonus bonus = new BonusImpl();
-        bonus.setBonus(20);
-        bonus.setGameBonus(pin[0]);
-
-        return bonus.calculate();
-    }
-
-    private Integer tripleStrikeBonus()
-    {
-        System.out.println("Strike bonus for three strike ");
-        Bonus bonus = new BonusImpl();
-        bonus.setBonus(30);
-        bonus.setGameBonus(0);
-
-        return bonus.calculate();
     }
 
     private Integer game()
