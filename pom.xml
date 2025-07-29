@@ -8,6 +8,27 @@
     <name>space</name>
     <description>Bowling</description>
     <properties>
+        <!-- code style & pmd -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.checkstyle.plugin>3.6.0</maven.checkstyle.plugin>
+        <maven.pmd.plugin.version>3.21.0</maven.pmd.plugin.version>
+        <com.puppycrawl.tools>10.20.0</com.puppycrawl.tools>
+        <com.thomasjensen.checkstyle.addons>6.0.1</com.thomasjensen.checkstyle.addons>
+        <checkstyle.config.file.path>
+            /config/checkstyle/checkstyle.xml
+        </checkstyle.config.file.path>
+        <pmd.config.file.path>
+            /config/pmd/pmd.xml
+        </pmd.config.file.path>
+        <pmd.configuration.exclude.root.generated.protobuf>
+            // TBD
+        </pmd.configuration.exclude.root.generated.protobuf>
+        <pmd.configuration.exclude.root.generated.classes>
+            // TBD
+        </pmd.configuration.exclude.root.generated.classes>
+        <!-- end of -->
         <java.version>17</java.version>
         <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
         <maven-surefire-plugin-version>3.5.3</maven-surefire-plugin-version>
@@ -80,6 +101,74 @@
                     </argLine>
                 </configuration>
             </plugin>
+            <!-- code style & PMD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${com.puppycrawl.tools}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.thomasjensen.checkstyle.addons</groupId>
+                        <artifactId>checkstyle-addons</artifactId>
+                        <version>${com.thomasjensen.checkstyle.addons}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <violationSeverity>warning</violationSeverity>
+                    <failOnViolation>false</failOnViolation>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <sourceDirectories>
+                        <directory>${project.build.sourceDirectory}</directory>
+                        <directory>${project.build.testSourceDirectory}</directory>
+                    </sourceDirectories>
+                    <configLocation>${checkstyle.config.file.path}</configLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven.pmd.plugin.version}</version>
+                <configuration>
+                    <failOnViolation>false</failOnViolation>
+                    <includeTests>true</includeTests>
+                    <linkXRef>false</linkXRef>
+                    <printFailingErrors>true</printFailingErrors>
+                    <rulesets>
+                        <ruleset>${pmd.config.file.path}</ruleset>
+                    </rulesets>
+                    <!-- <excludeRoots>
+                        <excludeRoot>${pmd.configuration.exclude.root.generated.classes}</excludeRoot>
+                        <excludeRoot>${pmd.configuration.exclude.root.generated.protobuf}</excludeRoot>
+                    </excludeRoots> -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-check</id>
+                        <phase>test</phase> <!-- Желательно наличие байт-кода; см. https://maven.apache.org/plugins/maven-pmd-plugin/faq.html -->
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- end of -->
         </plugins>
     </build>
 </project>

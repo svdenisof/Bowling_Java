@@ -1,6 +1,6 @@
 package ru.example.bonuses;
 
-interface Bonus {
+public interface Bonus {
     Integer calculate();
 }
 

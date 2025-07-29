@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Test;
 import ru.example.Bowling;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class BowlingJUnitTest {
 
     Bowling game;
     Integer score;
-    HashMap<Integer, int[]> pins;
+    Map<Integer, int[]> pins;
 
     @BeforeEach
     public void tearUp()
