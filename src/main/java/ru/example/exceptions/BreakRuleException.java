@@ -2,7 +2,7 @@ package ru.example.exceptions;
 
 import java.io.Serial;
 
-public class BreakRuleException extends RuntimeException {
+public class BreakRuleException extends IllegalArgumentException {
 
     @Serial
     private static final long serialVersionUID = 6274567456405867843L;

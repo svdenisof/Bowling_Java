@@ -1,85 +1,48 @@
 package ru.example;
 
 import ru.example.bonuses.CalculateBonus;
+import ru.example.entity.Frame;
+import ru.example.exceptions.BowlingGameException;
 import ru.example.exceptions.BreakRuleException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public final class Bowling {
 
-    private final List<Integer> rolls = new ArrayList<>();
+    private final List<Frame> frames = new ArrayList<>();
+
+    private final List<Integer> arrRolls = new ArrayList<>();
     private int[] score;
     private int result;
     private Map<Integer, int[]> thePins;
 
     public void roll(final Map<Integer, int[]> pins) {
 
-        boolean doubleStrike = false;
-        boolean tripleStrike = false;
-        thePins = pins;
+        frames.clear();
 
-        for (var i = 1; i <= pins.size(); i++) {
+        for (int i = 1; i <= 10; i++) {
+            final int[] rolls = pins.get(i);
 
-            score = thePins.get(i);
-
-            result = score[0] + score[1];
-            if (isNotLastSpare(i)) {
-
-                result = CalculateBonus.calculateSpareBonus(thePins.get(i + 1));
-
-            } else if (isNotLastStrike(i)) {
-
-                final int[] next = thePins.get(i + 1);
-                final int[] nextNext;
-                var strikeResult = 0;
-
-                nextNext = getAfterOne(i);
-
-                if (next[0] != 10 && !doubleStrike && !tripleStrike) {
-
-                    strikeResult = CalculateBonus.calculateStrikeBonus(thePins.get(i + 1));
-
-                } else if (next[0] == 10 && nextNext != null && nextNext[0] != 10 && !tripleStrike) {
-
-                    strikeResult = CalculateBonus.calculateDoubleStrikeBonus(thePins.get(i + 2));
-                    doubleStrike = true;
-
-                } else if (next[0] == 10 && nextNext != null && nextNext[0] == 10) {
-
-                    strikeResult = CalculateBonus.calculateTripleStrikeBonus();
-                    tripleStrike = true;
-
-                } else if ((doubleStrike && !tripleStrike) || tripleStrike) {
-
-                    final int[] prev = thePins.get(i - 1);
-                    if (prev[0] != 10) {
-
-                        doubleStrike = false;
-                        tripleStrike = false;
-                        strikeResult = CalculateBonus.calculateStrikeBonus(thePins.get(i + 1));
-                    }
-                }
-
-                result += strikeResult;
-
-            } else if (isNeedExtraRoll(i)) {
-
-                if (score.length < 3) {
-                    throw new BreakRuleException("Вы должны бросить еще один шар!");
-                }
-
-                final int[] extraPin = {score[1], score[0]};
-                if (score[0] == 10) {
-                    result = CalculateBonus.calculateStrikeBonus(extraPin);
-                } else {
-                    result = CalculateBonus.calculateSpareBonus(extraPin);
-                }
+            if (rolls == null) {
+                throw new BowlingGameException("Фрейм " + i + " пропущен");
             }
 
-            rolls.add(result);
+            final Frame frame = createFrame(rolls);
+
+            frames.add(frame);
         }
+    }
+
+    private Frame createFrame(final int[] rolls) {
+
+        return switch(rolls.length) {
+            case 2 -> new Frame(rolls[0], rolls[1], Optional.empty());
+            case 3 -> new Frame(rolls[0], rolls[1], Optional.of(rolls[2]));
+            default -> throw new BowlingGameException("Ошибка количества подходов во фрейме");
+        };
     }
 
     public Integer score() {
@@ -123,7 +86,7 @@ public final class Bowling {
         final var frames = 10;
         Integer score = 0;
         for (var i = 0; i < frames; i++) {
-            score += rolls.get(i);
+            score += arrRolls.get(i);
         }
 
         return score;
